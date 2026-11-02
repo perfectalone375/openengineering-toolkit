@@ -27,7 +27,9 @@ def simply_supported_center_load_max_deflection(
     return load * span**3 / (48.0 * modulus * inertia)
 
 
-def bending_stress_magnitude(moment_nm: float, second_moment_m4: float, outer_fibre_distance_m: float) -> float:
+def bending_stress_magnitude(
+    moment_nm: float, second_moment_m4: float, outer_fibre_distance_m: float
+) -> float:
     """Maximum elastic bending-stress magnitude (Pa): |M| c / I."""
     moment = abs(require_finite(moment_nm, "moment_nm"))
     inertia = require_positive(second_moment_m4, "second_moment_m4")

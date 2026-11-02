@@ -1,7 +1,7 @@
 """Basic aircraft sizing ratios; inputs use SI units."""
 from __future__ import annotations
 
-from .validation import require_finite, require_positive
+from .validation import require_positive
 
 
 def wing_loading_n_m2(weight_n: float, wing_area_m2: float) -> float:

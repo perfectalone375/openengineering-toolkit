@@ -13,7 +13,8 @@ def test_center_load_max_moment():
 
 def test_center_load_max_deflection():
     # P=1000 N, L=2 m, E=200 GPa, I=1e-6 m^4
-    assert simply_supported_center_load_max_deflection(1000, 2, 200e9, 1e-6) == pytest.approx(0.0004166666667)
+    val = simply_supported_center_load_max_deflection(1000, 2, 200e9, 1e-6)
+    assert val == pytest.approx(0.0008333333333333334)
 
 
 def test_bending_stress():
