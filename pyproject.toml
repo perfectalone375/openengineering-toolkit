@@ -4,24 +4,39 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "openengineering-toolkit"
-version = "0.2.0"
-description = "Transparent, tested utilities for preliminary engineering calculations."
+version = "0.3.0"
+description = "Transparent, verified computational mechanics, aerospace sizing, and rocket propulsion toolkit with Model Context Protocol (MCP) server."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Gopi Naga Vignesh Thirupati" }]
+authors = [{ name = "Gopi Naga Vignesh Thirupati", email = "vigneshthirupati2000@gmail.com" }]
+keywords = ["aerospace", "mechanics", "propulsion", "fluids", "mcp", "engineering", "ai-tools"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 dependencies = []
 
 [project.optional-dependencies]
 api = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]
-dev = ["pytest>=8.0", "ruff>=0.5", "httpx>=0.27"]
+dev = ["pytest>=8.0", "ruff>=0.5", "httpx>=0.27", "pytest-cov>=4.0"]
+
+[project.scripts]
+openeng = "openengineering.cli:main"
+openeng-mcp = "openengineering.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = "-ra --strict-markers"
 
 [tool.ruff]
 line-length = 100
@@ -29,3 +44,4 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
