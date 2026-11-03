@@ -1,0 +1,11 @@
+services:
+  openeng-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: perfectalone375/openengineering-toolkit:latest
+    container_name: openengineering-api
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

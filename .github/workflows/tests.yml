@@ -34,3 +34,18 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[api,dev]"
       - run: pytest
+
+  docker-build:
+    name: Docker Container Build & Verification
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build runtime Docker image
+        run: docker build --target runtime -t openengineering-toolkit:latest .
+      - name: Build and run test stage
+        run: |
+          docker build --target test -t openengineering-toolkit:test .
+          docker run --rm openengineering-toolkit:test
