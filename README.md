@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP Server](https://img.shields.io/badge/MCP-Protocol%202024--11--05-8A2BE2.svg)](https://modelcontextprotocol.io/)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Tests Passing](https://img.shields.io/badge/tests-52%20passed-brightgreen.svg)](tests/)
 
 Transparent, verified computational engineering mechanics, aerospace sizing, fluid dynamics, and rocket propulsion library for Python.
 
@@ -53,12 +54,18 @@ flowchart TD
 * **Haaland Turbulent Pipe Friction:** Explicit Darcy friction factor $f$.
 * **Aircraft Preliminary Sizing:** Wing loading $W/S$, geometric aspect ratio $b^2/S$, and thrust-to-weight $T/W$.
 
-### 3. Structural Mechanics & Beams (`openengineering.beam` & `mechanics`)
-* **Euler-Bernoulli Simply-Supported Deflection:** $\delta_{\max} = rac{P L^3}{48 E I}$.
-* **Maximum Bending Stress:** $\sigma = rac{|M| c}{I}$.
-* **Factor of Safety:** $FoS = rac{\sigma_{	ext{allowable}}}{\sigma_{	ext{actual}}}$.
+### 3. Compressible Gas Dynamics & Shock Waves (`openengineering.compressible`)
+* **Isentropic Ratios:** Total-to-static temperature ($T_0/T$), total-to-static density ($\rho_0/\rho$), and sonic throat area ratio ($A/A^*$) for nozzle expansion.
+* **1D Normal Shock Mechanics (Rankine-Hugoniot):** Downstream Mach $M_2$, static pressure jump $P_2/P_1$, and total pressure loss $P_{02}/P_{01}$.
+* **Prandtl-Meyer Supersonic Expansion:** Exact expansion angle $\nu(M)$ in degrees for supersonic flow around convex corners.
+* **API & MCP:** Exposed at `/fluids/compressible/` and via `openeng_compressible_isentropic` & `openeng_normal_shock` tools.
 
-### 4. Verified Dimensional Analysis (`openengineering.units`)
+### 4. Structural Mechanics & Beams (`openengineering.beam` & `mechanics`)
+* **Euler-Bernoulli Simply-Supported Deflection:** $\delta_{\max} = \frac{P L^3}{48 E I}$.
+* **Maximum Bending Stress:** $\sigma = \frac{|M| c}{I}$.
+* **Factor of Safety:** $FoS = \frac{\sigma_{\text{allowable}}}{\sigma_{\text{actual}}}$.
+
+### 5. Verified Dimensional Analysis (`openengineering.units`)
 * Robust SI, Imperial, and US Customary unit conversions for Length (`m`, `mm`, `ft`, `in`), Force (`N`, `kN`, `lbf`), and Pressure (`Pa`, `kPa`, `MPa`, `bar`, `psi`, `atm`).
 
 ---
