@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+
 import pytest
 
 from openengineering.compressible import (
@@ -61,3 +62,4 @@ def test_validation_errors():
 
     with pytest.raises(ValueError, match="gamma must be strictly greater than 1.0"):
         stagnation_temperature_ratio(1.5, 0.9)
+
