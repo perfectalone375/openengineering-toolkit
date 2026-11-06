@@ -15,6 +15,16 @@ from .beam import (
     simply_supported_center_load_max_deflection,
     simply_supported_center_load_max_moment,
 )
+from .compressible import (
+    critical_area_ratio,
+    normal_shock_mach,
+    normal_shock_pressure_ratio,
+    normal_shock_stagnation_pressure_ratio,
+    prandtl_meyer_angle_deg,
+    stagnation_density_ratio,
+    stagnation_temperature_ratio,
+)
+from .fluids import stagnation_pressure_ratio
 from .mechanics import factor_of_safety, normal_strain, normal_stress
 from .units import convert_force, convert_length, convert_pressure
 
@@ -200,3 +210,58 @@ def aerospace_mass_weight(request: MassWeightRequest) -> dict[str, float | str]:
         "weight_n": mass_to_weight_newtons(request.mass_kg, request.gravity_m_s2),
         "unit": "N",
     }
+
+
+class IsentropicFlowRequest(BaseModel):
+    mach: float = Field(gt=0)
+    gamma: float = Field(default=1.4, gt=1.0)
+
+
+class NormalShockRequest(BaseModel):
+    mach1: float = Field(ge=1.0)
+    gamma: float = Field(default=1.4, gt=1.0)
+
+
+class PrandtlMeyerRequest(BaseModel):
+    mach: float = Field(ge=1.0)
+    gamma: float = Field(default=1.4, gt=1.0)
+
+
+@app.post("/fluids/compressible/isentropic", tags=["fluids", "compressible"])
+def fluids_isentropic_flow(request: IsentropicFlowRequest) -> dict[str, float]:
+    try:
+        return {
+            "mach": request.mach,
+            "gamma": request.gamma,
+            "t0_over_t": stagnation_temperature_ratio(request.mach, request.gamma),
+            "p0_over_p": stagnation_pressure_ratio(request.mach, request.gamma),
+            "rho0_over_rho": stagnation_density_ratio(request.mach, request.gamma),
+            "a_over_astar": critical_area_ratio(request.mach, request.gamma),
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/fluids/compressible/normal-shock", tags=["fluids", "compressible"])
+def fluids_normal_shock(request: NormalShockRequest) -> dict[str, float]:
+    try:
+        return {
+            "mach1": request.mach1,
+            "mach2": normal_shock_mach(request.mach1, request.gamma),
+            "p2_over_p1": normal_shock_pressure_ratio(request.mach1, request.gamma),
+            "p02_over_p01": normal_shock_stagnation_pressure_ratio(request.mach1, request.gamma),
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/fluids/compressible/prandtl-meyer", tags=["fluids", "compressible"])
+def fluids_prandtl_meyer(request: PrandtlMeyerRequest) -> dict[str, float]:
+    try:
+        return {
+            "mach": request.mach,
+            "nu_deg": prandtl_meyer_angle_deg(request.mach, request.gamma),
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+

@@ -10,7 +10,15 @@ import sys
 from typing import Any
 
 from .beam import simply_supported_center_load_max_deflection
-from .fluids import reynolds_number
+from .compressible import (
+    critical_area_ratio,
+    normal_shock_mach,
+    normal_shock_pressure_ratio,
+    normal_shock_stagnation_pressure_ratio,
+    stagnation_density_ratio,
+    stagnation_temperature_ratio,
+)
+from .fluids import reynolds_number, stagnation_pressure_ratio
 from .propulsion import tsiolkovsky_delta_v
 from .units import convert_force, convert_length, convert_pressure
 
@@ -70,6 +78,30 @@ TOOLS = [
             "required": ["category", "value", "from_unit", "to_unit"],
         },
     },
+    {
+        "name": "openeng_compressible_isentropic",
+        "description": "Calculate isentropic compressible flow ratios: T0/T, P0/P, rho0/rho, and nozzle area ratio A/A*.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "mach": {"type": "number", "description": "Mach number (M > 0)"},
+                "gamma": {"type": "number", "description": "Ratio of specific heats (default: 1.4)", "default": 1.4},
+            },
+            "required": ["mach"],
+        },
+    },
+    {
+        "name": "openeng_normal_shock",
+        "description": "Calculate 1D normal shock wave properties: downstream Mach M2, static pressure jump P2/P1, and stagnation pressure loss P02/P01.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "mach1": {"type": "number", "description": "Upstream supersonic Mach number (M1 >= 1.0)"},
+                "gamma": {"type": "number", "description": "Ratio of specific heats (default: 1.4)", "default": 1.4},
+            },
+            "required": ["mach1"],
+        },
+    },
 ]
 
 
@@ -98,6 +130,27 @@ def handle_call_tool(name: str, args: dict[str, Any]) -> dict[str, Any]:
         else:
             res = convert_pressure(v, fu, tu)
         return {"input_value": v, "from_unit": fu, "output_value": res, "to_unit": tu}
+    elif name == "openeng_compressible_isentropic":
+        m = args["mach"]
+        g = args.get("gamma", 1.4)
+        return {
+            "mach": m,
+            "gamma": g,
+            "t0_over_t": stagnation_temperature_ratio(m, g),
+            "p0_over_p": stagnation_pressure_ratio(m, g),
+            "rho0_over_rho": stagnation_density_ratio(m, g),
+            "a_over_astar": critical_area_ratio(m, g),
+        }
+    elif name == "openeng_normal_shock":
+        m1 = args["mach1"]
+        g = args.get("gamma", 1.4)
+        return {
+            "mach1": m1,
+            "gamma": g,
+            "mach2": normal_shock_mach(m1, g),
+            "p2_over_p1": normal_shock_pressure_ratio(m1, g),
+            "p02_over_p01": normal_shock_stagnation_pressure_ratio(m1, g),
+        }
     else:
         raise ValueError(f"Unknown tool: {name}")
 
