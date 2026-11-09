@@ -1,4 +1,5 @@
 """Compressible fluid dynamics, isentropic flow relations, and normal shock mechanics."""
+
 from __future__ import annotations
 
 import math
@@ -92,4 +93,3 @@ def prandtl_meyer_angle_deg(mach: float, gamma: float = 1.4) -> float:
     arg2 = math.sqrt(m**2 - 1.0)
     nu_rad = factor * math.atan(arg1) - math.atan(arg2)
     return math.degrees(nu_rad)
-

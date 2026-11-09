@@ -4,6 +4,7 @@ These closed-form equations apply only to idealized, linearly elastic beams
 under the stated loading and support conditions. They are not a substitute
 for applicable design codes, stability checks, fatigue assessment, or FEA.
 """
+
 from __future__ import annotations
 
 from .validation import require_finite, require_positive

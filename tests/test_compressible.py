@@ -1,4 +1,5 @@
 """Tests for compressible gas dynamics and normal shock relations."""
+
 from __future__ import annotations
 
 import math
@@ -62,4 +63,3 @@ def test_validation_errors():
 
     with pytest.raises(ValueError, match="gamma must be strictly greater than 1.0"):
         stagnation_temperature_ratio(1.5, 0.9)
-

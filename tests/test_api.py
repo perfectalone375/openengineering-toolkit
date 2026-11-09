@@ -29,9 +29,7 @@ def test_unknown_unit_returns_validation_error():
 
 
 def test_normal_stress_endpoint():
-    response = client.post(
-        "/mechanics/normal-stress", json={"force_n": 10000, "area_mm2": 200}
-    )
+    response = client.post("/mechanics/normal-stress", json={"force_n": 10000, "area_mm2": 200})
     assert response.status_code == 200
     assert response.json()["normal_stress_mpa"] == 50
 
@@ -48,8 +46,6 @@ def test_invalid_zero_span_is_rejected():
 
 
 def test_wing_loading_endpoint():
-    response = client.post(
-        "/aerospace/wing-loading", json={"weight_n": 12000, "wing_area_m2": 16}
-    )
+    response = client.post("/aerospace/wing-loading", json={"weight_n": 12000, "wing_area_m2": 16})
     assert response.status_code == 200
     assert response.json()["wing_loading_n_m2"] == 750

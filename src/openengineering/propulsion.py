@@ -1,4 +1,5 @@
 """Rocket propulsion and thermodynamics closed-form analytical equations."""
+
 from __future__ import annotations
 
 import math
