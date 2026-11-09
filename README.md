@@ -96,7 +96,12 @@ dv = tsiolkovsky_delta_v(isp_s=320, initial_mass_kg=5000, dry_mass_kg=1200)
 print(f"Stage Delta-V: {dv:.1f} m/s")
 
 # 2. Aerodynamic Reynolds number for 1.5m wing chord at 60 m/s
-re = reynolds_number(density_kg_m3=1.225, velocity_m_s=60.0, characteristic_length_m=1.5, dynamic_viscosity_pa_s=1.789e-5)
+re = reynolds_number(
+    density_kg_m3=1.225,
+    velocity_m_s=60.0,
+    characteristic_length_m=1.5,
+    dynamic_viscosity_pa_s=1.789e-5,
+)
 print(f"Reynolds Number: {re:.2e}")
 
 # 3. Steel I-beam mid-span deflection under 5 kN load across 4 m span

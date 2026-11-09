@@ -10,11 +10,15 @@ def test_tools_schema_validity():
 
 
 def test_handle_deltav_tool():
-    res = handle_call_tool("openeng_deltav", {"isp_s": 300, "initial_mass_kg": 1000, "dry_mass_kg": 200})
+    res = handle_call_tool(
+        "openeng_deltav", {"isp_s": 300, "initial_mass_kg": 1000, "dry_mass_kg": 200}
+    )
     assert "delta_v_m_s" in res
     assert res["delta_v_m_s"] > 4000
 
 
 def test_handle_reynolds_tool():
-    res = handle_call_tool("openeng_reynolds", {"density_kg_m3": 1.225, "velocity_m_s": 30, "length_m": 1.0})
+    res = handle_call_tool(
+        "openeng_reynolds", {"density_kg_m3": 1.225, "velocity_m_s": 30, "length_m": 1.0}
+    )
     assert res["flow_regime"] == "turbulent" or res["flow_regime"] == "laminar"

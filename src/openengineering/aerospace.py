@@ -1,4 +1,5 @@
 """Basic aircraft sizing ratios; inputs use SI units."""
+
 from __future__ import annotations
 
 from .validation import require_positive

@@ -1,5 +1,8 @@
 """FastAPI interface for preliminary OpenEngineering calculations."""
+
 from __future__ import annotations
+
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, field_validator
@@ -26,6 +29,7 @@ from .compressible import (
 )
 from .fluids import stagnation_pressure_ratio
 from .mechanics import factor_of_safety, normal_strain, normal_stress
+from .oblique_shock import solve_oblique_shock
 from .units import convert_force, convert_length, convert_pressure
 
 app = FastAPI(
@@ -227,6 +231,13 @@ class PrandtlMeyerRequest(BaseModel):
     gamma: float = Field(default=1.4, gt=1.0)
 
 
+class ObliqueShockRequest(BaseModel):
+    mach1: float = Field(gt=1.0, description="Upstream supersonic Mach number")
+    theta_deg: float = Field(gt=0.0, description="Wedge deflection angle in degrees")
+    gamma: float = Field(default=1.4, gt=1.0, description="Specific heat ratio")
+    weak: bool = Field(default=True, description="True for weak shock, False for strong shock")
+
+
 @app.post("/fluids/compressible/isentropic", tags=["fluids", "compressible"])
 def fluids_isentropic_flow(request: IsentropicFlowRequest) -> dict[str, float]:
     try:
@@ -265,3 +276,28 @@ def fluids_prandtl_meyer(request: PrandtlMeyerRequest) -> dict[str, float]:
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
+
+@app.post("/fluids/compressible/oblique-shock", tags=["fluids", "compressible"])
+def fluids_oblique_shock(request: ObliqueShockRequest) -> dict[str, Any]:
+    try:
+        res = solve_oblique_shock(
+            mach1=request.mach1,
+            theta_deg=request.theta_deg,
+            gamma=request.gamma,
+            weak=request.weak,
+        )
+        return {
+            "mach1": res.mach1,
+            "theta_deg": res.theta_deg,
+            "beta_deg": res.beta_deg,
+            "mach_n1": res.mach_n1,
+            "mach_n2": res.mach_n2,
+            "mach2": res.mach2,
+            "p2_over_p1": res.p2_over_p1,
+            "t2_over_t1": res.t2_over_t1,
+            "rho2_over_rho1": res.rho2_over_rho1,
+            "p02_over_p01": res.p02_over_p01,
+            "is_weak_solution": res.is_weak_solution,
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc

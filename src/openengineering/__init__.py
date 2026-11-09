@@ -1,4 +1,5 @@
 """OpenEngineering Toolkit - Verified computational mechanics and aerospace sizing library."""
+
 from __future__ import annotations
 
 from .aerospace import (
@@ -29,6 +30,12 @@ from .fluids import (
     stagnation_pressure_ratio,
 )
 from .mechanics import factor_of_safety, normal_strain, normal_stress
+from .oblique_shock import (
+    ObliqueShockResult,
+    oblique_shock_beta_deg,
+    oblique_shock_max_theta_deg,
+    solve_oblique_shock,
+)
 from .propulsion import (
     characteristic_velocity_star,
     rocket_thrust_n,
@@ -56,6 +63,10 @@ __all__ = [
     "normal_shock_stagnation_pressure_ratio",
     "normal_strain",
     "normal_stress",
+    "ObliqueShockResult",
+    "oblique_shock_beta_deg",
+    "oblique_shock_max_theta_deg",
+    "solve_oblique_shock",
     "prandtl_meyer_angle_deg",
     "reynolds_number",
     "rocket_thrust_n",

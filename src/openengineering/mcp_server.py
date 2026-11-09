@@ -3,6 +3,7 @@
 Enables AI agents (Cursor, Claude Desktop, Antigravity) to perform deterministic,
 verified computational engineering mechanics calculations.
 """
+
 from __future__ import annotations
 
 import json
@@ -19,6 +20,7 @@ from .compressible import (
     stagnation_temperature_ratio,
 )
 from .fluids import reynolds_number, stagnation_pressure_ratio
+from .oblique_shock import solve_oblique_shock
 from .propulsion import tsiolkovsky_delta_v
 from .units import convert_force, convert_length, convert_pressure
 
@@ -44,8 +46,14 @@ TOOLS = [
             "properties": {
                 "load_n": {"type": "number", "description": "Center point load in Newtons"},
                 "span_m": {"type": "number", "description": "Clear span in meters"},
-                "elastic_modulus_pa": {"type": "number", "description": "Youngs modulus in Pascals (e.g. 200e9)"},
-                "second_moment_m4": {"type": "number", "description": "Second moment of area I in m^4"},
+                "elastic_modulus_pa": {
+                    "type": "number",
+                    "description": "Youngs modulus in Pascals (e.g. 200e9)",
+                },
+                "second_moment_m4": {
+                    "type": "number",
+                    "description": "Second moment of area I in m^4",
+                },
             },
             "required": ["load_n", "span_m", "elastic_modulus_pa", "second_moment_m4"],
         },
@@ -58,8 +66,14 @@ TOOLS = [
             "properties": {
                 "density_kg_m3": {"type": "number", "description": "Fluid density in kg/m^3"},
                 "velocity_m_s": {"type": "number", "description": "Flow velocity in m/s"},
-                "length_m": {"type": "number", "description": "Characteristic chord/diameter in meters"},
-                "viscosity_pa_s": {"type": "number", "description": "Dynamic viscosity in Pa*s (default air: 1.789e-5)"},
+                "length_m": {
+                    "type": "number",
+                    "description": "Characteristic chord/diameter in meters",
+                },
+                "viscosity_pa_s": {
+                    "type": "number",
+                    "description": "Dynamic viscosity in Pa*s (default air: 1.789e-5)",
+                },
             },
             "required": ["density_kg_m3", "velocity_m_s", "length_m"],
         },
@@ -85,7 +99,11 @@ TOOLS = [
             "type": "object",
             "properties": {
                 "mach": {"type": "number", "description": "Mach number (M > 0)"},
-                "gamma": {"type": "number", "description": "Ratio of specific heats (default: 1.4)", "default": 1.4},
+                "gamma": {
+                    "type": "number",
+                    "description": "Ratio of specific heats (default: 1.4)",
+                    "default": 1.4,
+                },
             },
             "required": ["mach"],
         },
@@ -96,10 +114,42 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "mach1": {"type": "number", "description": "Upstream supersonic Mach number (M1 >= 1.0)"},
-                "gamma": {"type": "number", "description": "Ratio of specific heats (default: 1.4)", "default": 1.4},
+                "mach1": {
+                    "type": "number",
+                    "description": "Upstream supersonic Mach number (M1 >= 1.0)",
+                },
+                "gamma": {
+                    "type": "number",
+                    "description": "Ratio of specific heats (default: 1.4)",
+                    "default": 1.4,
+                },
             },
             "required": ["mach1"],
+        },
+    },
+    {
+        "name": "openeng_oblique_shock",
+        "description": "Calculate 2D supersonic oblique shock properties: wave angle beta, downstream Mach M2, pressure jump P2/P1, and total pressure ratio P02/P01.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "mach1": {"type": "number", "description": "Upstream Mach number (M1 > 1.0)"},
+                "theta_deg": {
+                    "type": "number",
+                    "description": "Flow wedge deflection angle in degrees",
+                },
+                "gamma": {
+                    "type": "number",
+                    "description": "Ratio of specific heats (default: 1.4)",
+                    "default": 1.4,
+                },
+                "weak": {
+                    "type": "boolean",
+                    "description": "True for attached weak shock solution (default: True)",
+                    "default": True,
+                },
+            },
+            "required": ["mach1", "theta_deg"],
         },
     },
 ]
@@ -151,6 +201,24 @@ def handle_call_tool(name: str, args: dict[str, Any]) -> dict[str, Any]:
             "p2_over_p1": normal_shock_pressure_ratio(m1, g),
             "p02_over_p01": normal_shock_stagnation_pressure_ratio(m1, g),
         }
+    elif name == "openeng_oblique_shock":
+        m1 = args["mach1"]
+        th = args["theta_deg"]
+        g = args.get("gamma", 1.4)
+        wk = args.get("weak", True)
+        res = solve_oblique_shock(mach1=m1, theta_deg=th, gamma=g, weak=wk)
+        return {
+            "mach1": res.mach1,
+            "theta_deg": res.theta_deg,
+            "beta_deg": res.beta_deg,
+            "mach_n1": res.mach_n1,
+            "mach_n2": res.mach_n2,
+            "mach2": res.mach2,
+            "p2_over_p1": res.p2_over_p1,
+            "t2_over_t1": res.t2_over_t1,
+            "p02_over_p01": res.p02_over_p01,
+            "is_weak_solution": res.is_weak_solution,
+        }
     else:
         raise ValueError(f"Unknown tool: {name}")
 
@@ -190,10 +258,18 @@ def main() -> None:
                     },
                 }
             else:
-                resp = {"jsonrpc": "2.0", "id": msg_id, "error": {"code": -32601, "message": f"Method {method} not found"}}
+                resp = {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "error": {"code": -32601, "message": f"Method {method} not found"},
+                }
             print(json.dumps(resp), flush=True)
         except Exception as err:
-            err_resp = {"jsonrpc": "2.0", "id": None, "error": {"code": -32000, "message": str(err)}}
+            err_resp = {
+                "jsonrpc": "2.0",
+                "id": None,
+                "error": {"code": -32000, "message": str(err)},
+            }
             print(json.dumps(err_resp), flush=True)
 
 

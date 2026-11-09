@@ -1,4 +1,5 @@
 """Command-line interface for openengineering-toolkit."""
+
 from __future__ import annotations
 
 import argparse
@@ -62,16 +63,18 @@ def main() -> None:
 
     if args.command == "deltav":
         res = tsiolkovsky_delta_v(args.isp, args.m0, args.mf)
-        print(f"Ideal Delta-V: {res:.2f} m/s ({res/1000.0:.3f} km/s)")
+        print(f"Ideal Delta-V: {res:.2f} m/s ({res / 1000.0:.3f} km/s)")
     elif args.command == "beam-deflection":
-        res = simply_supported_center_load_max_deflection(args.load, args.span, args.modulus, args.inertia)
-        print(f"Max Mid-span Deflection: {res*1000.0:.4f} mm ({res:.6e} m)")
+        res = simply_supported_center_load_max_deflection(
+            args.load, args.span, args.modulus, args.inertia
+        )
+        print(f"Max Mid-span Deflection: {res * 1000.0:.4f} mm ({res:.6e} m)")
     elif args.command == "reynolds":
         res = reynolds_number(args.density, args.velocity, args.length, args.viscosity)
         print(f"Reynolds Number: {res:.3e} ({res:.1f})")
     elif args.command == "q":
         res = dynamic_pressure_pa(args.density, args.velocity)
-        print(f"Dynamic Pressure q: {res:.2f} Pa ({res/1000.0:.3f} kPa)")
+        print(f"Dynamic Pressure q: {res:.2f} Pa ({res / 1000.0:.3f} kPa)")
     elif args.command == "wing-loading":
         res = wing_loading_n_m2(args.weight, args.area)
         print(f"Wing Loading W/S: {res:.2f} N/m^2")

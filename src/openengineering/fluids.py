@@ -1,4 +1,5 @@
 """Fluid mechanics equations: Reynolds number, dynamic pressure, and pipe friction."""
+
 from __future__ import annotations
 
 import math
