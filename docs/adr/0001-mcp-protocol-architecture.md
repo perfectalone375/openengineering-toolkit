@@ -23,3 +23,4 @@ We adopted the **Model Context Protocol (MCP)** specification (Protocol version 
 - **Positive:** Enables instant, zero-configuration local tool calling in Claude Desktop and Cursor.
 - **Positive:** Eliminates mathematical hallucinations for compressible flow and propulsion thermodynamics.
 - **Neutral:** Stdio transports require unbuffered execution (`python -u` or explicit `flush=True`).
+
